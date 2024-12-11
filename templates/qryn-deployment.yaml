@@ -13,6 +13,10 @@ spec:
     metadata:
       labels:
       {{- include "qryn-helm.selectorLabels" . | nindent 8 }}
+      annotations:
+      {{- range $key, $value := .Values.podAnnotations }}
+        {{ $key }}: {{ $value | quote }}
+      {{- end }}
     spec:
       automountServiceAccountToken: {{ .Values.automountServiceAccountToken }}
       securityContext:
@@ -48,7 +52,21 @@ spec:
         resources:
           {{- toYaml .Values.resources | nindent 12 }}
 
+      {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
-        - name: {{ include "helm.secretName" . }}
-
+      {{ toYaml .Values.imagePullSecrets | indent 8 }}
+      {{- end }}
       restartPolicy: Always
+      {{- if .Values.nodeSelector }}
+      nodeSelector:
+      {{ toYaml .Values.nodeSelector | indent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations:
+      {{ toYaml .Values.tolerations | indent 8 }}
+      {{- end }}
+      {{- if .Values.affinity }}
+      affinity:
+      {{ toYaml .Values.affinity | indent 8 }}
+      {{- end }}
+
